@@ -14,7 +14,8 @@ client.on("ready", () => {
 
 function soundboard(message, cont) {
 	if(message.member.voiceChannel) {
-		var arg = cont.split(" ")[1];
+		var int = cont.indexOf(" ");
+		var arg = cont.slice(int + 1);
 		var url = "";
 		request("http://www.myinstants.com/search/?name=" + arg, function (error, response, body) {
   			if(!error) {
@@ -80,7 +81,6 @@ client.on("message", (message) => {
 					arr[i].delete();
 				}
 			}
-			message.reply("started cleaning");
 		});
 	}
 });
