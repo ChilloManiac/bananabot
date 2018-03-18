@@ -4,8 +4,8 @@ const helper = require("./helperfuncs.js");
 const auth = require("./.auth.json");
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
-var request = require("request");
-var fs = require('fs');
+const request = require("request");
+const fs = require('fs');
 
 
 client.on("ready", () => {
