@@ -70,6 +70,18 @@ client.on("message", (message) => {
 		}
 	}  else if (cont.startsWith(".sb")) {
 		soundboard(message, cont)
+	} else if (cont === ".clean") {
+		message.channel.fetchMessages({ limit: 100 })
+		.then(messages => {
+			var arr = messages.array();
+			var msgLength = arr.length;
+			for (var i = 0; i < msgLength; i++) {
+				if(arr[i].content.startsWith(".") || arr[i].author.id === client.user.id) {
+					arr[i].delete();
+				}
+			}
+			message.reply("started cleaning");
+		});
 	}
 });
 
