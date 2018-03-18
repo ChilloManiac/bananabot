@@ -12,6 +12,35 @@ client.on("ready", () => {
 	console.log("I am ready!");
 });
 
+function soundboard(message, cont) {
+	if(message.member.voiceChannel) {
+		var arg = cont.split(" ")[1];
+		var url = "";
+		request("http://www.myinstants.com/search/?name=" + arg, function (error, response, body) {
+  			if(!error) {
+  				const dom = new JSDOM(body);
+  				if(dom.window.document.getElementsByClassName("instant").length > 0) {
+	  				url = "https://www.myinstants.com" + dom.window.document.getElementsByClassName("instant")[0].getElementsByClassName("small-button")[0].getAttribute("onmousedown").split("'")[1];
+	  				request.get(url).on("error", function(err) {
+						console.log("error downloading mp3");
+					}).pipe(fs.createWriteStream("soundclips/temp.mp3").on("close", () => {
+						message.member.voiceChannel.join().then(connection => {
+							const dispatcher = connection.playFile("soundclips/temp.mp3");
+							dispatcher.on("end", () => {
+								message.member.voiceChannel.leave();
+							});
+						});
+					}));
+				} else {
+					message.reply("No results found");
+				}
+  			} else {
+  				console.log("Something went wrong with the soundboard");
+  			}
+		});			
+	}
+}
+
 client.on("message", (message) => {
 	var cont = message.content;
 
@@ -40,33 +69,7 @@ client.on("message", (message) => {
 			message.guild.me.voiceChannel.leave();
 		}
 	}  else if (cont.startsWith(".sb")) {
-		if(message.member.voiceChannel) {
-			var arg = cont.split(" ")[1];
-			var url = "";
-			request("http://www.myinstants.com/search/?name=" + arg, function (error, response, body) {
-	  			if(!error) {
-	  				const dom = new JSDOM(body);
-	  				if(dom.window.document.getElementsByClassName("instant").length > 0) {
-		  				url = "https://www.myinstants.com" + dom.window.document.getElementsByClassName("instant")[0].getElementsByClassName("small-button")[0].getAttribute("onmousedown").split("'")[1];
-		  				request.get(url).on("error", function(err) {
-							console.log("error downloading mp3");
-						}).pipe(fs.createWriteStream("soundclips/temp.mp3").on("close", () => {
-							message.member.voiceChannel.join().then(connection => {
-								const dispatcher = connection.playFile("soundclips/temp.mp3");
-								dispatcher.on("end", () => {
-									message.member.voiceChannel.leave();
-								});
-							});
-						}));
-					} else {
-						message.reply("No results found");
-					}
-	  			} else {
-	  				console.log("Something went wrong with the soundboard");
-	  			}
-			});
-			
-		}
+		soundboard(message, cont)
 	}
 });
 
